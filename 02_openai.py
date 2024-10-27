@@ -3,32 +3,25 @@ from openai import OpenAI
 # pip install openai 
 # if you saved the key under a different environment variable name, you can do something like:
 client = OpenAI(
-  api_key="<Your Key Here>",
+  api_key="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",
 )
 
 command = '''
-[20:30, 12/6/2024] Naruto: jo sunke coding ho sake?
-[20:30, 12/6/2024] Rohan Das: https://www.youtube.com/watch?v=DzmG-4-OASQ
-[20:30, 12/6/2024] Rohan Das: ye
-[20:30, 12/6/2024] Rohan Das: https://www.youtube.com/watch?v=DzmG-4-OASQ
-[20:31, 12/6/2024] Naruto: This is hindi
-[20:31, 12/6/2024] Naruto: send me some english songs
-[20:31, 12/6/2024] Naruto: but wait
-[20:31, 12/6/2024] Naruto: this song is amazing
-[20:31, 12/6/2024] Naruto: so I will stick to it
-[20:31, 12/6/2024] Naruto: send me some english song also
-[20:31, 12/6/2024] Rohan Das: hold on
-[20:31, 12/6/2024] Naruto: I know what you are about to send
-[20:32, 12/6/2024] Naruto: 😂😂
-[20:32, 12/6/2024] Rohan Das: https://www.youtube.com/watch?v=ar-3chBG4NU
-ye hindi English mix hai but best hai
-[20:33, 12/6/2024] Naruto: okok
-[20:33, 12/6/2024] Rohan Das: Haan
+[3:15 PM, 10/27/2024] Divanshu Goel: Arre sun tere chacha te vaa bar Karie
+[3:15 PM, 10/27/2024] Tapnanshu: Ok
+[3:16 PM, 10/27/2024] Divanshu Goel: report banali python ki
+[3:16 PM, 10/27/2024] Tapnanshu: Konsi
+[3:16 PM, 10/27/2024] Divanshu Goel: project aali
+[3:16 PM, 10/27/2024] Tapnanshu: Ye kab hua
+[3:16 PM, 10/27/2024] Divanshu Goel: dikhani he Monday ne
+[3:16 PM, 10/27/2024] Tapnanshu: Nhi
+[3:16 PM, 10/27/2024] Tapnanshu: Bna lenge
+[3:17 PM, 10/27/2024] Divanshu Goel: theek sarkar
 '''
 completion = client.chat.completions.create(
   model="gpt-3.5-turbo",
   messages=[
-    {"role": "system", "content": "You are a person named harry who speaks hindi as well as english. He is from India and is a coder. You analyze chat history and respond like Harry"},
+    {"role": "system", "content": "You are a person named Tapnanshu who speaks hindi as well as english. you are from India and you are a coder. You analyze chat history and respond like Tapnanshu"},
     {"role": "user", "content": command}
   ]
 )
