@@ -1,64 +1,110 @@
 import pyautogui
 import time
 import pyperclip
-from openai import OpenAI
-client = OpenAI(
-  api_key="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 ",
-)
-def is_last_message_from_sender(chat_log, sender_name="Divanshu Goel"):
-    # Split the chat log into individual messages
+from groq import Groq  # Import Groq client for API interactions
+
+# Initialize Groq client
+client = Groq(api_key="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")
+
+# Function to check if the last message is from a specific sender
+def is_last_message_from_sender(chat_log):
+    # chat_log.strip().split("/2024] ")[-1]
     messages = chat_log.strip().split("/2024] ")[-1]
-    if sender_name in messages:
+    if "Tapnanshu:" not in messages:
         return True 
-    return False
+    """
+    Check if the last message in the chat log is from someone other than 'Tapnanshu'.
+    Returns True if the last message is NOT from 'Tapnanshu', otherwise False.
+    """
+    if not chat_log:  # Handle empty or None chat log
+        return False
 
-# Step 1: Activate VS Code window by switching with Cmd + Tab
-pyautogui.hotkey('command', 'tab')
-time.sleep(1)  # Wait to ensure VS Code is active
+    # Extract the last non-empty line
+    lines = [line.strip() for line in chat_log.split("\n") if line.strip()]
+    if not lines:
+        return False
 
-# Step 2: Click on the text area within VS Code if coordinates need updating
-pyautogui.click(1165, 919)  # Adjust coordinates if needed
+    last_message = lines[-1]  # Get the last line
+    print(f"Last message: {last_message}")
 
-# Step 3: Small delay to ensure the window is active
+    # Check if the last message is sent by 'Tapnanshu'
+    return "Tapnanshu" not in last_message
+
+
+
+# Function to determine the chat tone (professional or casual)
+def detect_chat_tone(chat_history):
+    completion = client.chat.completions.create(
+        model="llama-3.1-70b-versatile",
+        messages=[
+            {"role": "system", "content": "You are a classifier. Analyze the chat history and determine whether the tone is professional or casual. Reply only with 'professional' or 'casual'."},
+            {"role": "user", "content": chat_history},
+        ],
+        temperature=0,
+        max_tokens=10,
+        top_p=1,
+    )
+    response = completion.choices[0].message.content.strip().lower()
+    print("Detected chat tone:", response)
+    return response
+pyautogui.click(1215, 916)
 time.sleep(1)
 
-# Step 4: Drag from (548, 225) to (1419, 870) to select text
-while True:
-    pyautogui.moveTo(531, 211)
-    pyautogui.dragTo(638, 935, duration=1, button='left')
+# Function to automate chat interaction
+def automate_chat():
+    while True:
+        time.sleep(5)  # Interval between checks
 
-    # Step 5: Copy the selected text (Cmd + C)
-    pyautogui.hotkey('command', 'c')
+        # Step 1: Select and copy chat history
+        pyautogui.moveTo(553, 217)  # Move to start of chat
+        pyautogui.dragTo(575, 932, duration=2.0, button="left")  # Select chat
+        pyautogui.hotkey("command", "c")  # Copy text to clipboard
+        time.sleep(1)  # Wait for clipboard update
 
-    # Step 6: Small delay to ensure the text is copied
-    time.sleep(0.5)
-    pyautogui.click(1019,630)
-    # Step 7: Get the copied text from the clipboard
-    chat_history = pyperclip.paste()
+        # Step 2: Retrieve chat history
+        chat_history = pyperclip.paste()
+        print("Chat History:", chat_history)
 
-    # Step 8: Print the copied text or store it for further use
-    print(f"Copied text: {chat_history}")
-    print(is_last_message_from_sender(chat_history))
-    if is_last_message_from_sender(chat_history):
-        completion = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a person named Tapnanshu who speaks hindi as well as english. You are from India and you are a coder. You analyze chat history and roast people in a funny way. Output should be the next chat response (text message only)"},
-            {"role": "system", "content": "Do not start like this [21:02, 12/6/2024] Divanshu Goel  : "},
-            {"role": "user", "content": chat_history}
-        ]
-        )
+        # Step 3: Check if the last message is from the target sender
+        if is_last_message_from_sender(chat_history):
+            # Step 4: Detect chat tone
+            tone = detect_chat_tone(chat_history)
 
-        response=completion.choices[0].message.content
-        pyperclip.copy(response)
+            # Generate an appropriate response based on the tone
+            prompt_content = "You are Tapnanshu, a coder from India who speaks both Hindi and English."
+            if tone == "professional":
+                prompt_content += " Respond professionally, concisely, and formally. Keep your response brief."
+            elif tone == "casual":
+                prompt_content += " Respond casually, humorously, and wittily. Keep your response short and creative."
 
-        # Step 5: Click at coordinates (1808, 1328)
-        pyautogui.click(899, 908)
-        time.sleep(1)  # Wait for 1 second to ensure the click is registered
+            completion = client.chat.completions.create(
+                model="llama-3.1-70b-versatile",
+                messages=[
+                    {"role": "system", "content": prompt_content},
+                    {"role": "user", "content": chat_history},
+                ],
+                temperature=0.7,
+                max_tokens=50,  # Short response
+                top_p=1,
+                stream=False,  # Disable streaming for simplicity
+            )
 
-        # Step 6: Paste the text
-        pyautogui.hotkey('command   ', 'v')
-        time.sleep(1)  # Wait for 1 second to ensure the paste command is completed
+            # Step 5: Extract and print the response
+            response = completion.choices[0].message.content.strip()
+            print("Generated Response:", response)
 
-        # Step 7: Press Enter
-        pyautogui.press('return')    
+            # Step 6: Paste and send the response
+            pyperclip.copy(response)
+            pyautogui.click(1808, 1328)  # Click to activate chat input
+            pyautogui.hotkey("command", "v")  # Paste response
+            pyautogui.press("return")  # Send message
+        else:
+            print("No relevant message from sender.")
+
+# Run the script
+if __name__ == "__main__":
+    try:
+        print("Starting chat automation...")
+        automate_chat()
+    except KeyboardInterrupt:
+        print("\nAutomation stopped by user.")
