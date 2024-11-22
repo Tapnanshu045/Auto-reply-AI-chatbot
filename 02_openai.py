@@ -1,10 +1,10 @@
+from groq import Groq
 from openai import OpenAI
  
 # pip install openai 
 # if you saved the key under a different environment variable name, you can do something like:
-client = OpenAI(
-  api_key="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",
-)
+client = Groq(api_key="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")
+
 
 command = '''
 [3:15 PM, 10/27/2024] Divanshu Goel: Arre sun tere chacha te vaa bar Karie
